@@ -48759,7 +48759,7 @@ var validateConfig = (key, condition, validationMessage) => {
   if (!condition) {
     ce(`${source_default.red("\u2716")} wrong value for ${key}: ${validationMessage}.`);
     ce(
-      "For more help refer to docs https://github.com/di-sukharev/opencommit"
+      "For more help refer to docs https://github.com/asarudick/opencommit"
     );
     process.exit(1);
   }
@@ -49029,7 +49029,7 @@ var setConfig = (keyValues, globalConfigPath = defaultConfigPath) => {
 
 ${supportedKeys}.
 
-For more help refer to our docs: https://github.com/di-sukharev/opencommit`
+For more help refer to our docs: https://github.com/asarudick/opencommit`
       );
     }
     let parsedConfigValue;
@@ -54425,7 +54425,7 @@ var AnthropicEngine = class {
           if (anthropicAiError?.message)
             ce(anthropicAiError.message);
           ce(
-            "For help look into README https://github.com/di-sukharev/opencommit#setup"
+            "For help look into README https://github.com/asarudick/opencommit#setup"
           );
         }
         throw err;
@@ -58118,7 +58118,7 @@ var AzureEngine = class {
           if (openAiError?.message)
             ce(openAiError.message);
           ce(
-            "For help look into README https://github.com/di-sukharev/opencommit#setup"
+            "For help look into README https://github.com/asarudick/opencommit#setup"
           );
         }
         throw err;

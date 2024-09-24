@@ -21,10 +21,10 @@
     "oco": "./out/cli.cjs"
   },
   "repository": {
-    "url": "https://github.com/di-sukharev/opencommit"
+    "url": "https://github.com/asarudick/opencommit"
   },
   "type": "module",
-  "author": "https://github.com/di-sukharev",
+  "author": "https://github.com/asarudick",
   "license": "MIT",
   "files": [
     "out/cli.cjs",
