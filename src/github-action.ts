@@ -161,17 +161,54 @@ async function improveCommitMessages(
 
   await exec.exec(`chmod +x ./rebase-exec.sh`);
 
-  await exec.exec(
-    'git',
-    ['rebase', `${commitsToImprove[0].id}^`, '--exec', './rebase-exec.sh'],
-    {
+  // Log Git status and recent commits before rebase
+  console.log('Git status before rebase:');
+  await exec.exec('git', ['status']);
+  console.log('Recent commits before rebase:');
+  await exec.exec('git', ['log', '--oneline', '-n', '5']);
+
+  // Check if we have necessary permissions
+  try {
+    await exec.exec('git', ['push', '--dry-run']);
+  } catch (error) {
+    console.error('Error: Insufficient permissions to push to this repository.');
+    console.error(error);
+    return;
+  }
+
+  // Check if the commit has a parent
+  let rebaseCommand: string[];
+  try {
+    await exec.exec('git', ['rev-parse', `${commitsToImprove[0].id}^`]);
+    rebaseCommand = ['rebase', `${commitsToImprove[0].id}^`, '--exec', './rebase-exec.sh'];
+    console.log(`Rebase command: git ${rebaseCommand.join(' ')}`);
+  } catch (error) {
+    // If the commit doesn't have a parent, it's likely the first commit
+    rebaseCommand = ['rebase', '--root', '--exec', './rebase-exec.sh'];
+    console.log(`Rebase command (root): git ${rebaseCommand.join(' ')}`);
+  }
+
+  try {
+    await exec.exec('git', rebaseCommand, {
       env: {
         GIT_SEQUENCE_EDITOR: 'sed -i -e "s/^pick/reword/g"',
         GIT_COMMITTER_NAME: process.env.GITHUB_ACTOR!,
         GIT_COMMITTER_EMAIL: `${process.env.GITHUB_ACTOR}@users.noreply.github.com`
       }
-    }
-  );
+    });
+  } catch (error) {
+    console.error('Error during rebase:');
+    console.error(error);
+    // If rebase fails, try to abort it
+    await exec.exec('git', ['rebase', '--abort']);
+    throw error;
+  }
+
+  // Log Git status and recent commits after rebase
+  console.log('Git status after rebase:');
+  await exec.exec('git', ['status']);
+  console.log('Recent commits after rebase:');
+  await exec.exec('git', ['log', '--oneline', '-n', '5']);
 
   const deleteCommitMessageFile = (index: number) =>
     unlinkSync(`./commit-${index}.txt`);
@@ -182,10 +219,14 @@ async function improveCommitMessages(
 
   outro('Force pushing non-interactively rebased commits into remote.');
 
-  await exec.exec('git', ['status']);
-
   // Force push the rebased commits
-  await exec.exec('git', ['push', `--force`]);
+  try {
+    await exec.exec('git', ['push', '--force']);
+  } catch (error) {
+    console.error('Error during force push:');
+    console.error(error);
+    throw error;
+  }
 
   outro('Done 🧙');
 }
