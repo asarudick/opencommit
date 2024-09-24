@@ -1,0 +1,12 @@
+{
+  "hash": "de4afde7fad427a9ce7ef478144c1b5c9cc3c555b4762d889aa49fa41074c3e3",
+  "prompts": [],
+  "consistency": {
+    "english": {
+      "localLanguage": "english",
+      "commitFix": "fix(server): change 'port' to 'PORT'",
+      "commitFeat": "feat(server): allow server to use environment variable for port",
+      "commitDescription": "Changed 'port' to 'PORT' and enabled server to listen on env PORT."
+    }
+  }
+}
