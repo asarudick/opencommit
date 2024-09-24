@@ -139,7 +139,7 @@ async function improveCommitMessages(
   );
 
   if (!messagesChanged) {
-    console.log('No changes in commit messages detected, skipping rebase');
+    outro('No changes in commit messages detected, skipping rebase');
     return;
   }
 
@@ -162,17 +162,17 @@ async function improveCommitMessages(
   await exec.exec(`chmod +x ./rebase-exec.sh`);
 
   // Log Git status and recent commits before rebase
-  console.log('Git status before rebase:');
+  outro('Git status before rebase:');
   await exec.exec('git', ['status']);
-  console.log('Recent commits before rebase:');
+  outro('Recent commits before rebase:');
   await exec.exec('git', ['log', '--oneline', '-n', '5']);
 
   // Check if we have necessary permissions
   try {
     await exec.exec('git', ['push', '--dry-run']);
   } catch (error) {
-    console.error('Error: Insufficient permissions to push to this repository.');
-    console.error(error);
+    outro('Error: Insufficient permissions to push to this repository.');
+    outro(error);
     return;
   }
 
@@ -180,12 +180,17 @@ async function improveCommitMessages(
   let rebaseCommand: string[];
   try {
     await exec.exec('git', ['rev-parse', `${commitsToImprove[0].id}^`]);
-    rebaseCommand = ['rebase', `${commitsToImprove[0].id}^`, '--exec', './rebase-exec.sh'];
-    console.log(`Rebase command: git ${rebaseCommand.join(' ')}`);
+    rebaseCommand = [
+      'rebase',
+      `${commitsToImprove[0].id}^`,
+      '--exec',
+      './rebase-exec.sh'
+    ];
+    outro(`Rebase command: git ${rebaseCommand.join(' ')}`);
   } catch (error) {
     // If the commit doesn't have a parent, it's likely the first commit
     rebaseCommand = ['rebase', '--root', '--exec', './rebase-exec.sh'];
-    console.log(`Rebase command (root): git ${rebaseCommand.join(' ')}`);
+    outro(`Rebase command (root): git ${rebaseCommand.join(' ')}`);
   }
 
   try {
@@ -197,17 +202,17 @@ async function improveCommitMessages(
       }
     });
   } catch (error) {
-    console.error('Error during rebase:');
-    console.error(error);
+    outro('Error during rebase:');
+    outro(error);
     // If rebase fails, try to abort it
     await exec.exec('git', ['rebase', '--abort']);
     throw error;
   }
 
   // Log Git status and recent commits after rebase
-  console.log('Git status after rebase:');
+  outro('Git status after rebase:');
   await exec.exec('git', ['status']);
-  console.log('Recent commits after rebase:');
+  outro('Recent commits after rebase:');
   await exec.exec('git', ['log', '--oneline', '-n', '5']);
 
   const deleteCommitMessageFile = (index: number) =>
@@ -223,8 +228,8 @@ async function improveCommitMessages(
   try {
     await exec.exec('git', ['push', '--force']);
   } catch (error) {
-    console.error('Error during force push:');
-    console.error(error);
+    outro('Error during force push:');
+    outro(error);
     throw error;
   }
 
